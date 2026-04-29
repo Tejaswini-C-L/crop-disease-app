@@ -9,7 +9,7 @@ st.set_page_config(page_title="Crop Disease Detection", layout="centered")
 st.markdown("""
 <style>
 .main {
-    background-color: #f5f7fa;
+    background-color: #000;
 }
 
 .big-card {
@@ -23,18 +23,27 @@ st.markdown("""
 .title {
     font-size: 26px;
     font-weight: bold;
-    color: #2c3e50;
+    color: #000000;
 }
 
 .sub {
     font-size: 18px;
-    color: #555;
+    color: #000;
 }
 
 .small {
     font-size: 15px;
-    color: #777;
+    color: #000000 !important;
 }
+
+.small li {
+    color: #000000 !important;
+}
+
+label {
+    color: #000000 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -76,7 +85,6 @@ def analyze_weather(temp, humidity, rainfall):
 
     score = 0
 
-    # HIGH IMPACT
     if humidity > 80:
         report["factors"].append("🔴 High humidity strongly promotes fungal disease")
         score += 2
@@ -85,17 +93,14 @@ def analyze_weather(temp, humidity, rainfall):
         report["factors"].append("🔴 Excess rainfall increases disease spread")
         score += 2
 
-    # MODERATE IMPACT
     if temp > 32:
         report["factors"].append("🟠 High temperature causes plant stress")
         score += 2
 
-    # LOW IMPACT
     elif temp > 28:
         report["factors"].append("🟡 Slightly high temperature")
         score += 1
 
-    # -------- FIXED RISK LOGIC --------
     if score >= 4:
         report["risk_level"] = "High"
         report["summary"] = "⚠️ High chance of disease due to weather conditions"
@@ -109,7 +114,6 @@ def analyze_weather(temp, humidity, rainfall):
         report["risk_level"] = "Low"
         report["summary"] = "✅ Weather conditions are safe"
 
-    # No factors case
     if not report["factors"]:
         report["factors"].append("✅ No significant weather risks")
 
@@ -134,14 +138,19 @@ solutions = {
 
 # ---------------- UI ----------------
 
-st.markdown("<h1 style='text-align:center;color:#0F5904'>🌿 Crop Disease Detection System</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;color:#0A8C3A'>🌿 Crop Disease Detection System</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align:center; color:grey;'>AI-powered plant health analysis</p>", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Upload Leaf Image", type=["jpg","png","jpeg"])
 
-temp = st.number_input("Temperature (°C)", 0, 50, 30)
-humidity = st.number_input("Humidity (%)", 0, 100, 80)
-rainfall = st.number_input("Rainfall (mm)", 0, 500, 100)
+st.write("🌡 Temperature (°C)")
+temp = st.number_input("", 0, 50, 30)
+
+st.write("💧 Humidity (%)")
+humidity = st.number_input("", 0, 100, 80)
+
+st.write("🌧 Rainfall (mm)")
+rainfall = st.number_input("", 0, 500, 100)
 
 # ---------------- MAIN LOGIC ----------------
 
@@ -159,59 +168,56 @@ if uploaded_file:
         "prevention":"Maintain crop care"
     })
 
-    # 🔥 BIG HEADING
     st.markdown("### 📊 Results")
 
-if "healthy" in disease:
-    status = "✅ Healthy"
-else:
-    status = severity
+    if "healthy" in disease:
+        status = "✅ Healthy"
+    else:
+        status = severity
 
-st.markdown(f"""
-<div class="big-card">
-    <div class="title">Disease: {disease.replace('_',' ').title()}</div>
-    <div class="sub">Confidence: {round(conf,3)}</div>
-    <div class="sub">Status: {status}</div>
-</div>
-""", unsafe_allow_html=True)
-
-# ✅ FIX HERE
-if "healthy" in disease:
-    st.markdown("**Status:** ✅ Plant is Healthy")
-else:
-    st.markdown(f"**Severity:** {severity}")
-    # 🔥 BIG HEADING
-    st.markdown("### 🌦️ Weather Analysis")
-
-color = "#2ecc71"  # green
-if weather["risk_level"] == "Moderate":
-    color = "#f39c12"
-elif weather["risk_level"] == "High":
-    color = "#e74c3c"
-
-factors_html = "".join([f"<li>{f}</li>" for f in weather["factors"]])
-
-st.markdown(f"""
-<div class="big-card">
-    <div class="title">Risk Level: <span style="color:{color};">{weather['risk_level']}</span></div>
-    <div class="sub">{weather['summary']}</div>
-    <br>
-    <div class="small"><b>Contributing Factors:</b></div>
-    <ul class="small">
-        {factors_html}
-    </ul>
-</div>
-""", unsafe_allow_html=True)
-    # 🔥 BIG HEADING
-st.markdown("### 🌱 Solution")
-
-if "healthy" in disease:
-    st.success("✅ No treatment needed. Maintain current care.")
-else:
     st.markdown(f"""
     <div class="big-card">
-        <div class="sub"><b>Fertilizer:</b> {solution['fertilizer']}</div>
-        <div class="sub"><b>Treatment:</b> {solution['treatment']}</div>
-        <div class="sub"><b>Prevention:</b> {solution['prevention']}</div>
+        <div class="title">Disease: {disease.replace('_',' ').title()}</div>
+        <div class="sub">Confidence: {round(conf,3)}</div>
+        <div class="sub">Status: {status}</div>
     </div>
     """, unsafe_allow_html=True)
+
+    if "healthy" in disease:
+        st.markdown("**Status:** ✅ Plant is Healthy")
+    else:
+        st.markdown(f"**Severity:** {severity}")
+        st.markdown("### 🌦️ Weather Analysis")
+
+        color = "#2ecc71"
+        if weather["risk_level"] == "Moderate":
+            color = "#f39c12"
+        elif weather["risk_level"] == "High":
+            color = "#e74c3c"
+
+        factors_html = "".join([f"<li>{f}</li>" for f in weather["factors"]])
+
+        st.markdown(f"""
+        <div class="big-card">
+            <div class="title">Risk Level: <span style="color:{color};">{weather['risk_level']}</span></div>
+            <div class="sub">{weather['summary']}</div>
+            <br>
+            <div class="small"><b>Contributing Factors:</b></div>
+            <ul class="small">
+                {factors_html}
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("### 🌱 Solution")
+
+    if "healthy" in disease:
+        st.success("✅ No treatment needed. Maintain current care.")
+    else:
+        st.markdown(f"""
+        <div class="big-card">
+            <div class="sub"><b>Fertilizer:</b> {solution['fertilizer']}</div>
+            <div class="sub"><b>Treatment:</b> {solution['treatment']}</div>
+            <div class="sub"><b>Prevention:</b> {solution['prevention']}</div>
+        </div>
+        """, unsafe_allow_html=True)
