@@ -3,6 +3,6 @@ tensorflow==2.15.0
 numpy
 pandas
 matplotlib
-opencv-python
+opencv-python-headless
 Pillow
 scikit-learn
